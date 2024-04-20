@@ -17,7 +17,6 @@ export async function loginAction(values: LoginSchema) {
 
     const { email, password } = result.data;
     const userExists = await prisma.user.findUnique({ where: { email } });
-    console.log(userExists)
     if (!userExists) {
       return {
         success: false,
@@ -31,7 +30,6 @@ export async function loginAction(values: LoginSchema) {
       userExists.hashedPassword,
       password
     );
-    console.log({isPasswordCorrect})
     if (!isPasswordCorrect) {
       return {
         success: false,
