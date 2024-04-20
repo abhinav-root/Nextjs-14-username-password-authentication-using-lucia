@@ -16,21 +16,18 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { SignupSchema, signupSchema } from "./_schemas";
-import { createAccountAction } from "./_actions";
-import { ZodError, z } from "zod";
+import { LoginSchema, loginSchema } from "./_schemas";
 import { FormError } from "@/components/form-error";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { loginAction } from "./_actions";
 import Link from "next/link";
 
-export default function SignupPage() {
-  const router = useRouter()
-  const form = useForm<SignupSchema>({
-    resolver: zodResolver(signupSchema),
+export default function LoginPage() {
+  const router = useRouter();
+  const form = useForm<LoginSchema>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
       email: "",
       password: "",
     },
@@ -38,14 +35,12 @@ export default function SignupPage() {
   const { setError, formState } = form;
   const rootError = formState?.errors?.root?.message;
 
-  async function onSubmit(values: SignupSchema) {
-    const response = await createAccountAction(values);
+  async function onSubmit(values: LoginSchema) {
+    console.log(values);
+    const response = await loginAction(values);
     if (!response.success) {
       if (response?.errors?.fieldErrors) {
-        const { firstName, lastName, email, password } =
-          response?.errors?.fieldErrors;
-        firstName && setError("firstName", { message: firstName?.[0] });
-        lastName && setError("lastName", { message: lastName?.[0] });
+        const { email, password } = response?.errors?.fieldErrors;
         email && setError("email", { message: email?.[0] });
         password && setError("password", { message: password?.[0] });
       }
@@ -54,46 +49,18 @@ export default function SignupPage() {
       return;
     } else {
       form.reset();
-      toast.success("Your account has been created. Redrecting to your dashboard", {
+      toast.success("Login Successful", {
         position: "bottom-center",
       });
-      setTimeout(() => router.replace("/"), 2000)
+      setTimeout(() => router.replace("/"), 2000);
     }
   }
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-100">
       <div className="py-6 px-4 bg-white rounded shadow grow max-w-80">
-        <h1 className="text-xl font-bold text-center mb-8">
-          Create your account here
-        </h1>
+        <h1 className="text-xl font-bold text-center mb-8">Login</h1>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="firstName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>First Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="John" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="lastName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Last Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="email"
@@ -132,12 +99,12 @@ export default function SignupPage() {
               </Button>
             ) : (
               <Button type="submit" className={cn("w-full")}>
-                Create Account
+                Login
               </Button>
             )}
           </form>
         </Form>
-        <p className="mt-4 text-center text-sm text-gray-500">Already a user? <Link href={"/login"} className="text-blue-500 hover:underline">Login</Link></p>
+        <p className="mt-4 text-center text-sm text-gray-500">Not a user? <Link href={"/signup"} className="text-blue-500 hover:underline">Signup</Link></p>
       </div>
     </div>
   );

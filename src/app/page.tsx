@@ -1,6 +1,9 @@
+import { validateRequest } from "@/auth";
 import Image from "next/image";
 
-export default function Home() {
+export default async function Home() {
+  const {session, user} = await validateRequest()
+  console.log({session, user})
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
